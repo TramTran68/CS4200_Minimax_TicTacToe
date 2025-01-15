@@ -17,6 +17,7 @@ public class GameBoard {
     }
 
     public void display() {
+        System.out.println();
         // Print column numbers
         System.out.print("  "); // Space for row headers
         for (int col = 1; col <= SIZE; col++) {

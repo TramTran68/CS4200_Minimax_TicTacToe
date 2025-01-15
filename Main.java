@@ -25,7 +25,7 @@ public class Main {
             board.display();
 
             if (playerTurn) {
-                System.out.print("Choose your next move (e.g., 'E5'): ");
+                System.out.print("\nChoose your next move (e.g., 'E5'): ");
                 String moveInput = scanner.nextLine().trim().toUpperCase();
 
                 // Input validation and move application
@@ -36,7 +36,7 @@ public class Main {
             } else {
                 Move bestMove = ai.getBestMove(board, maxDepth, timeLimit);
                 board.applyMove(bestMove, 'X');
-                System.out.println("Computer chose: " + moveToString(bestMove));
+                System.out.println("\nComputer chose: " + moveToString(bestMove));
             }
 
             playerTurn = !playerTurn;
@@ -49,7 +49,7 @@ public class Main {
         if (winner == 'X') {
             System.out.println("Computer wins!");
         } else if (winner == 'O') {
-            System.out.println("Player win!");
+            System.out.println("Player wins!");
         } else {
             System.out.println("It's a draw!");
         }
