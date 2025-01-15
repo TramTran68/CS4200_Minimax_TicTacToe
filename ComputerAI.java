@@ -48,7 +48,6 @@ public class ComputerAI {
         }
         return bestMove;
     }
-    
 
     // Alpha-Beta Pruning implementation.
     private int alphaBeta(GameBoard board, int depth, int alpha, int beta, boolean isMaximizing, long startTime, int timeLimit) {
@@ -102,7 +101,7 @@ public class ComputerAI {
             int distanceA = Math.abs(a.getRow() - 4) + Math.abs(a.getCol() - 4); 
             int distanceB = Math.abs(b.getRow() - 4) + Math.abs(b.getCol() - 4);
             return Integer.compare(distanceA, distanceB); // Sort closer moves first
-        });
+        }); 
         return moves;
     }
     
@@ -129,47 +128,122 @@ public class ComputerAI {
                     }
                 }
             }
-        }
-    
-        // Row and column control with stronger threat/block handling
+        } 
+
+        /* Ideally blocks is when opponent pieces are in a row or column greater than 2, "Blocking" is perfered when boths side are blocked  */
+        /* Checking for any rows */
+        int blocked = 0;
         for (int row = 0; row < 8; row++) {
-            int rowCountComputer = 0, rowCountOpponent = 0;
-            for (int col = 0; col < 8; col++) {
-                if (board.isOccupied(row, col)) {
-                    if (board.getPiece(row, col) == computerPiece) rowCountComputer++;
-                    else if (board.getPiece(row, col) == opponentPiece) rowCountOpponent++;
-                }
-            }
-            score += scoreLine(rowCountComputer, rowCountOpponent);
-        }
-    
-        for (int col = 0; col < 8; col++) {
             int colCountComputer = 0, colCountOpponent = 0;
-            for (int row = 0; row < 8; row++) {
-                if (board.isOccupied(row, col)) {
-                    if (board.getPiece(row, col) == computerPiece) colCountComputer++;
-                    else if (board.getPiece(row, col) == opponentPiece) colCountOpponent++;
+            for (int col = 0; col < 8; col++) {
+
+                if (board.isOccupied(row, col) && board.getPiece(row, col) == opponentPiece) {
+
+                    int start = col;
+                    for (int i = col; i < 8; i++) {
+                        if (!board.isOccupied(row, i) || board.getPiece(row, i) == computerPiece) {
+
+                            if (board.getPiece(row, i) == computerPiece && colCountOpponent > 1)
+                                blocked++; 
+
+                            if (start - 1 >= 0 && board.getPiece(row, start - 1) == computerPiece && colCountOpponent > 1) 
+                                blocked++; 
+
+                            if (start - 1 >= 0 
+                                && board.getPiece(row, start - 1) == computerPiece 
+                                && board.getPiece(row, i) == computerPiece 
+                                && colCountOpponent > 1) {
+                                colCountOpponent = 0;
+                            }
+
+                            break;
+                        }
+
+                        col++; 
+                        colCountOpponent++;
+                    }
+                }
+
+                if (col >= 8)
+                    continue;
+
+                if (board.isOccupied(row, col) && board.getPiece(row, col) == computerPiece) {
+
+                    for (int i = col; i < 8; i++) {
+                        if (!board.isOccupied(row, i) || board.getPiece(row, i) == opponentPiece)
+                            break;
+
+                        col++;
+                        colCountComputer++;
+                    }
                 }
             }
-            score += scoreLine(colCountComputer, colCountOpponent);
+
+            score += scoreLine(colCountComputer, colCountOpponent, blocked);
+        
         }
-    
+
+        /* Checking for any columns of the opponents pieces */
+        for (int col = 0; col < 8; col++) {
+            int rowCountComputer = 0, rowCountOpponent = 0; 
+            for (int row = 0; row < 8; row++) {
+                if (board.isOccupied(row, col) && board.getPiece(row, col) == opponentPiece) {
+
+                    int start = row; 
+                    for (int i = row; i < 8; i++) {
+
+                        if (!board.isOccupied(i, col) || board.getPiece(i, col) == computerPiece) {
+
+                            if (board.getPiece(i, col) == computerPiece && rowCountOpponent > 1)
+                                blocked++;
+
+                            if (start - 1 >= 0 && board.getPiece(start - 1, col) == computerPiece && rowCountOpponent > 1) 
+                                blocked++;
+                
+
+                            break;
+                        }
+                        row++;
+                        rowCountOpponent++;
+                    }
+                }
+
+                if (row >= 8)
+                    continue;
+            
+                if (board.isOccupied(row, col) && board.getPiece(row, col) == computerPiece) {
+                    for (int i = row; i < 8; i++) {
+                        if (!board.isOccupied(i, col) || board.getPiece(i, col) == opponentPiece) {
+                            break;
+                        }
+                        row++;
+                        rowCountComputer++;
+                    }
+                }
+            }
+
+            score += scoreLine(rowCountComputer, rowCountOpponent, blocked);
+        }
+
         return score;
     }    
     
     // Helper function to evaluate threat levels with stronger values
-    private int scoreLine(int countComputer, int countOpponent) {
+    private int scoreLine(int countComputer, int countOpponent, int blocked) {
         int score = 0;
     
         // Offensive scoring
         if (countComputer == 4) score += 1000;  // Winning move
-        else if (countComputer == 3) score += 300;  // Strong offensive move
-        else if (countComputer == 2) score += 50;   // Moderate control
+        if (countComputer == 3) score += 200;  // Strong offensive move
+        if (countComputer == 2) score += 30;   // Moderate control
+
+        // Increase score if blocked is successful 
+        score += blocked * 50;
     
         // Defensive scoring (blocking opponent's win)
         if (countOpponent == 4) score -= 1000;  // Block immediate win
-        else if (countOpponent == 3) score -= 500;  // Block crucial threats
-        else if (countOpponent == 2) score -= 100;   // Block moderate threats
+        if (countOpponent == 3) score -= 600;  // Block crucial threats
+        if (countOpponent == 2) score -= 300;   // Block moderate threats
     
         return score;
     }    
