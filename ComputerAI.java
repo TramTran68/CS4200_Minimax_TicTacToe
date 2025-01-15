@@ -233,17 +233,17 @@ public class ComputerAI {
         int score = 0;
     
         // Offensive scoring
-        if (countComputer == 4) score += 1000;  // Winning move
-        if (countComputer == 3) score += 200;  // Strong offensive move
-        if (countComputer == 2) score += 30;   // Moderate control
+        if (countComputer == 4) score += 2000;  // Winning move
+        if (countComputer == 3) score += 400;  // Strong offensive move
+        if (countComputer == 2) score += 200;   // Moderate control
 
         // Increase score if blocked is successful 
-        score += blocked * 50;
+        score += blocked * 100;
     
         // Defensive scoring (blocking opponent's win)
-        if (countOpponent == 4) score -= 1000;  // Block immediate win
+        if (countOpponent == 4) score -= 2000;  // Block immediate win
         if (countOpponent == 3) score -= 600;  // Block crucial threats
-        if (countOpponent == 2) score -= 300;   // Block moderate threats
+        if (countOpponent == 2) score -= 400;   // Block moderate threats
     
         return score;
     }    
